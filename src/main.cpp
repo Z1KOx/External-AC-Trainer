@@ -1,4 +1,4 @@
-#include "proc/proc.h"
+#include "proc.h"
 #include <iostream>
 #include <thread>
 
@@ -49,6 +49,12 @@ void loadOffsets(const HANDLE& hProcess, const uintptr_t& localPlayer, std::vect
 	addr[6] = findDMAAddy(hProcess, localPlayer, { 0x11C });
 }
 
+template <typename T>
+void Write(HANDLE hProcess, std::uintptr_t baseAddr, T dataToWrtite)
+{
+	WriteProcessMemory(hProcess, reinterpret_cast<BYTE*>(baseAddr), &dataToWrtite, sizeof(dataToWrtite), nullptr);
+}
+
 int main()
 {
 	DWORD procId{ NULL };
@@ -57,13 +63,13 @@ int main()
 	std::uintptr_t localPlayer{ NULL };
 	loadTrainer(procId, modBaseAddr, hProcess, localPlayer);
 
-	std::cout << "\n\n\tNumpad1 = Rifle Ammo\n";
+	std::cout << "\n\n\tNumpad1 = Rifle ammo\n";
 	std::cout << "\tNumpad2 = Health\n";
 	std::cout << "\tNumpad3 = Grenade\n";
 	std::cout << "\tNumpad4 = Armor\n";
-	std::cout << "\tNumpad5 = Pistol Ammo\n";
-	std::cout << "\tNumpad6 = Pistol Clip\n";
-	std::cout << "\tNumpad7 = Rifle Clip\n";
+	std::cout << "\tNumpad5 = Pistol ammo\n";
+	std::cout << "\tNumpad6 = Pistol reserve ammo\n";
+	std::cout << "\tNumpad7 = Rifle reserve ammo\n";
 
 	std::vector<std::uintptr_t> addr;
 	constexpr int writeValue{ 999 };
@@ -72,19 +78,19 @@ int main()
 		loadOffsets(hProcess, localPlayer, addr);
 
 		if (GetAsyncKeyState(VK_NUMPAD1) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[0], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[0], writeValue);
 		if (GetAsyncKeyState(VK_NUMPAD2) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[1], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[1], writeValue);
 		if (GetAsyncKeyState(VK_NUMPAD3) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[2], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[2], writeValue);
 		if (GetAsyncKeyState(VK_NUMPAD4) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[3], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[3], writeValue);
 		if (GetAsyncKeyState(VK_NUMPAD5) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[4], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[4], writeValue);
 		if (GetAsyncKeyState(VK_NUMPAD6) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[5], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[5], writeValue);
 		if (GetAsyncKeyState(VK_NUMPAD7) & 1)
-			WriteProcessMemory(hProcess, (BYTE*)addr[6], &writeValue, sizeof(writeValue), nullptr);
+			Write(hProcess, addr[6], writeValue);
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
